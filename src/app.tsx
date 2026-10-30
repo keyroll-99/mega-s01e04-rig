@@ -5,6 +5,7 @@ import { readStatus } from './status.js';
 import { Layout } from './views/layout.js';
 import { StatusBoard } from './views/status.js';
 import { registerDigestPage } from './digest/page.js';
+import { registerDigestJson } from './digest/json.js';
 
 export function createApp(config: RigConfig = loadConfig()) {
   const app = new Hono();
@@ -20,6 +21,7 @@ export function createApp(config: RigConfig = loadConfig()) {
   );
 
   registerDigestPage(app, config);
+  registerDigestJson(app, config);
 
   return app;
 }
