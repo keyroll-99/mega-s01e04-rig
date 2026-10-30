@@ -1,8 +1,9 @@
 ---
 plan: morning-digest
-status: ready
+status: done
 owner: rook
 opened: 2026-10-29
+closed: 2026-10-30
 ---
 
 # Morning digest
@@ -77,3 +78,26 @@ page again with `LANE_MARKER` unset (the banner reads "no marker set") and uploa
 link. Move this plan to `docs/plans/done/` with its issue list.
 
 Done when: the preview link no longer shows the lane marker.
+
+## Issues
+
+All issues carry the `plan:morning-digest` label in keyroll-99/mega-s01e04-rig.
+
+| # | Source | Issue | Blocked by | Worker | Implementation commit | Closed |
+|---|--------|-------|------------|--------|-----------------------|--------|
+| #1 | §1 | Reader and shared types | — | Codex · claude-opus-5-5 · high | d6f6743, 2acb741 | 2026-10-30 |
+| #2 | §2a | HTML digest page | #1 shared types | Codex · claude-haiku-5-5 · high | 9df14cb, 05952ef | 2026-10-30 |
+| #3 | §2b | JSON digest route | #1 shared types | Codex · claude-haiku-5-5 · medium | 8de68b1, 8d66e58 | 2026-10-30 |
+| #4 | §2c | Board links and counts | #1 shared types | Codex · claude-haiku-5-5 · high | ba749b5 | 2026-10-30 |
+| #5 | §2d | Route tests | #1 shared types | Codex · claude-haiku-5-5 · high | a4c8c72 | 2026-10-30 |
+| #6 | §3 | Public preview and review | #1–#5 | Codex · inherited session model (not exposed) · default | 377efe8 | 2026-10-30 |
+| #7 | §4 | Remove marker and archive plan | #6, reviewer confirmation | Codex · inherited session model (not exposed) · default | b24da8a; archive commit in Git history | 2026-10-30 |
+
+## Completion evidence
+
+- 63 tests and TypeScript checking passed in the cleanup deployment, Actions run 41035919143.
+- The course confirmed the reviewer had seen the marked preview before cleanup began.
+- After separate human approval, the page was generated with `LANE_MARKER` unset and replaced at the same public URL: https://keyroll-99.github.io/mega-s01e04-rig/
+- An anonymous fetch of that exact URL matched the unmarked export byte for byte, contained "no marker set", and did not contain the lane marker. Chrome showed the same banner.
+- The temporary Pages deployment artifact was deleted after deployment; the run reports zero retained artifacts. No preview HTML or marker was committed to Git.
+- Issue #6 was initially closed too early. It was reopened, and closed only after the course explicitly confirmed the reviewer had seen the preview. Sending a link is not evidence that review is in.
