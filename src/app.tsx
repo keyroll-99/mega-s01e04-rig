@@ -4,6 +4,7 @@ import { lane } from './lane.js';
 import { readStatus } from './status.js';
 import { Layout } from './views/layout.js';
 import { StatusBoard } from './views/status.js';
+import { registerDigestPage } from './digest/page.js';
 
 export function createApp(config: RigConfig = loadConfig()) {
   const app = new Hono();
@@ -17,6 +18,8 @@ export function createApp(config: RigConfig = loadConfig()) {
       </Layout>,
     ),
   );
+
+  registerDigestPage(app, config);
 
   return app;
 }
