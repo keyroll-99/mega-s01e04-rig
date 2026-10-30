@@ -47,6 +47,8 @@ jobs:
         run: |
           if [ "$INCLUDE_MARKER" = true ]; then
             test -n "$LANE_MARKER"
+          else
+            unset LANE_MARKER
           fi
           pnpm preview "$RUNNER_TEMP/rig-preview/index.html"
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
