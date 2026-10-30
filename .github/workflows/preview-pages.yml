@@ -1,0 +1,65 @@
+name: Publish digest preview
+
+# Deliberately manual: publishing and replacing the public page need separate human approval.
+on:
+  workflow_dispatch:
+    inputs:
+      include_marker:
+        description: Include the lane marker for the first review (requires human approval)
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: write
+
+concurrency:
+  group: digest-preview-pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+        with:
+          version: 10.33.0
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --registry=https://registry.npmjs.org
+      - run: pnpm test && pnpm typecheck
+      - name: Save only the sample digest outside Git
+        env:
+          LANE_MARKER: ${{ inputs.include_marker && secrets.LANE_MARKER || '' }}
+          INCLUDE_MARKER: ${{ inputs.include_marker }}
+        run: |
+          if [ "$INCLUDE_MARKER" = true ]; then
+            test -n "$LANE_MARKER"
+          fi
+          pnpm preview "$RUNNER_TEMP/rig-preview/index.html"
+      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4
+        id: artifact
+        with:
+          path: ${{ runner.temp }}/rig-preview
+          retention-days: 1
+      - uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
+        id: deployment
+      - name: Remove the temporary deployment artifact
+        if: ${{ always() && steps.artifact.outputs.artifact_id != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ steps.artifact.outputs.artifact_id }}
+        run: gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID"
